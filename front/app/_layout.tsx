@@ -5,7 +5,15 @@ import "../global.css";
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <Stack />
+      <RootNavigator />
     </SafeAreaProvider>
+  );
+}
+
+function RootNavigator() {
+  return (
+    <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
+      <Stack.Screen name="(public)" options={{ headerShown: false }} />
+    </Stack>
   );
 }
