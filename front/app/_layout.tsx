@@ -1,12 +1,15 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthProvider } from "../lib/cognito/auth.provider";
 import "../global.css";
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <RootNavigator />
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <RootNavigator />
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }
 
