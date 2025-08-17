@@ -1,98 +1,124 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormInput } from "@/components/ui/form";
+import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
+import useLogin from "@/lib/cognito/use-login";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { ActivityIndicator, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, Alert, View } from "react-native";
 import * as z from "zod";
 
 const formSchema = z.object({
-  email: z.email("Please enter a valid email address."),
+  email: z.email("Merci d'entrer une adresse email valide."),
   password: z
     .string()
-    .min(8, "Please enter at least 8 characters.")
-    .max(64, "Please enter fewer than 64 characters."),
+    .min(8, "Merci d'entrer au moins 8 caractères.")
+    .max(64, "Merci d'entrer moins de 64 caractères."),
 });
 
 export default function Login() {
+  const router = useRouter();
+
+  const { handleLogin } = useLogin();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "thibaultmorassin+session@gmail.com",
+      password: "StrongPassword123!",
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      // await signIn(data.email, data.password);
+    const [result, error] = await handleLogin(data.email, data.password);
 
-      form.reset();
-    } catch (error: Error | any) {
-      console.error(error.message);
+    if (error) {
+      if (error.message.includes("Veuillez d'abord confirmer votre compte")) {
+        Alert.alert(
+          "Compte non confirmé",
+          "Nous vous avons envoyé un code de confirmation à votre adresse email.",
+          [
+            {
+              text: "Confirmer mon compte",
+              onPress: () => router.push("/(public)/confirm-sign-up"),
+            },
+            {
+              text: "Fermer",
+              style: "destructive",
+            },
+          ],
+        );
+      } else {
+        console.error(error.message);
+      }
+      return;
     }
+    console.log("Login successful", result);
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-4" edges={["bottom"]}>
-      <View className="flex-1 gap-4 web:m-4">
-        <H1 className="self-start ">Login</H1>
+    <SafeAreaView className="flex-1 gap-8 bg-background">
+      <View className="flex-1 rounded-b-3xl bg-primary" />
+      <View className="flex-1 p-4 gap-4">
         <Form {...form}>
-          <View className="gap-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormInput
-                  label="Email"
-                  placeholder="Email"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  {...field}
-                />
+          <View className="flex-1 gap-4">
+            <H1>Connexion</H1>
+            <View className="gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormInput
+                    label="Email"
+                    placeholder="Email"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    {...field}
+                  />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormInput
+                    label="Mot de passe"
+                    placeholder="Mot de passe"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    secureTextEntry
+                    {...field}
+                  />
+                )}
+              />
+            </View>
+          </View>
+          <View className="flex-row gap-4">
+            <Link href="../" asChild>
+              <Button size="default" variant="secondary">
+                <Text>Retour</Text>
+              </Button>
+            </Link>
+
+            <Button
+              size="default"
+              variant="default"
+              onPress={form.handleSubmit(onSubmit)}
+              disabled={form.formState.isSubmitting}
+              className="flex-1"
+            >
+              {form.formState.isSubmitting ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <Text>Se connecter</Text>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormInput
-                  label="Password"
-                  placeholder="Password"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  secureTextEntry
-                  {...field}
-                />
-              )}
-            />
+            </Button>
           </View>
         </Form>
-      </View>
-      <View className="flex flex-col gap-y-4 web:m-4">
-        <Button
-          size="default"
-          variant="default"
-          onPress={form.handleSubmit(onSubmit)}
-          disabled={form.formState.isSubmitting}
-          className="web:m-4"
-        >
-          {form.formState.isSubmitting ? (
-            <ActivityIndicator size="small" />
-          ) : (
-            <Text>Sign In</Text>
-          )}
-        </Button>
-        <Link href="/(public)" dismissTo asChild>
-          <Button size="default" variant="secondary">
-            <Text>Back</Text>
-          </Button>
-        </Link>
       </View>
     </SafeAreaView>
   );
