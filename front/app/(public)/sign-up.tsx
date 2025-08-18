@@ -72,8 +72,6 @@ export default function SignUp() {
     }
 
     if (signUpResult) {
-      console.log(signUpResult);
-
       if (signUpResult.UserConfirmed) {
         router.push("/");
       }

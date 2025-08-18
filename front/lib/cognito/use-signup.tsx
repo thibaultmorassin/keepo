@@ -48,10 +48,13 @@ const useSignUp = () => {
     return [signUpResult, null];
   };
 
-  const handleConfirmSignUp = async (
-    email: string,
-    code: string,
-  ): Promise<[ConfirmSignUpCommandOutput | null, AuthError | null]> => {
+  const handleConfirmSignUp = async ({
+    email,
+    code,
+  }: {
+    email: string;
+    code: string;
+  }): Promise<[ConfirmSignUpCommandOutput | null, AuthError | null]> => {
     setIsLoading(true);
 
     const [confirmResult, error] = await confirmSignUp(email, code);

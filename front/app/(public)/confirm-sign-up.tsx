@@ -36,12 +36,10 @@ export default function ConfirmSignUp() {
       throw new Error("Email not found");
     }
 
-    const [confirmResult, error] = await confirmSignUp(
-      data.code,
-      session?.email,
-    );
-
-    console.log({ confirmResult, error });
+    const [confirmResult, error] = await confirmSignUp({
+      email: session?.email,
+      code: data.code,
+    });
 
     if (error) {
       if (error.message === "Code de confirmation expiré") {
@@ -52,9 +50,7 @@ export default function ConfirmSignUp() {
             {
               text: "Recevoir un nouveau code",
               onPress: async () => {
-                const [resendResult, resendError] =
-                  await resendConfirmationCode();
-                console.log({ resendResult, resendError });
+                const [, resendError] = await resendConfirmationCode();
                 if (resendError) {
                   console.error(resendError.message);
                 }
