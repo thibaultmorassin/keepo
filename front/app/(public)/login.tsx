@@ -6,9 +6,11 @@ import { H1 } from "@/components/ui/typography";
 import useLogin from "@/lib/cognito/use-login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ActivityIndicator, Alert, View } from "react-native";
 import * as z from "zod";
+import Feather from "@expo/vector-icons/Feather";
 
 const formSchema = z.object({
   email: z.email("Merci d'entrer une adresse email valide."),
@@ -20,6 +22,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const router = useRouter();
+  const [ passwordIsVisible, setPasswordIsVisible ] = useState(false)
 
   const { handleLogin } = useLogin();
 
@@ -85,14 +88,31 @@ export default function Login() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormInput
-                    label="Mot de passe"
-                    placeholder="Mot de passe"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    secureTextEntry
-                    {...field}
-                  />
+                  <View
+                    className="relative"
+                  >
+                    <FormInput
+                      label="Mot de passe"
+                      placeholder="Mot de passe"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      secureTextEntry={!passwordIsVisible}
+                      {...field}
+                    />
+                    <Button
+                      className="absolute right-2 bottom-1"
+                      onPress={() => setPasswordIsVisible(!passwordIsVisible)}
+                      variant="ghost"
+                      size="icon"
+                    >
+                      {
+                        passwordIsVisible ? 
+                        <Feather name="eye-off" size={18} color="black" />
+                        :
+                        <Feather name="eye" size={18} color="black" />
+                      }
+                    </Button>
+                  </View>
                 )}
               />
             </View>
