@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/lib/cognito/auth.provider";
+import { AuthProvider, useAuth } from "@/lib/cognito/auth.provider";
 import { Stack } from "expo-router";
 import {
   configureReanimatedLogger,
@@ -23,9 +23,17 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
+  const { session } = useAuth();
+
   return (
     <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
-      <Stack.Screen name="(public)" options={{ headerShown: false }} />
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="(protected)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="(public)" options={{ headerShown: false }} />
+      </Stack.Protected>
     </Stack>
   );
 }
