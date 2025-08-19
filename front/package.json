@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.865.0",
     "@babel/plugin-transform-class-static-block": "^7.28.3",
+    "@expo-google-fonts/lilita-one": "^0.4.0",
     "@expo/vector-icons": "^14.1.0",
     "@hookform/resolvers": "^5.2.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
