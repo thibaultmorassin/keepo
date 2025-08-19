@@ -10,12 +10,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-function SwitchWeb({
-  className,
-  ...props
-}: SwitchPrimitives.RootProps & {
-  ref?: React.RefObject<SwitchPrimitives.RootRef>;
-}) {
+const SwitchWeb = React.forwardRef<
+  SwitchPrimitives.RootRef,
+  SwitchPrimitives.RootProps
+>(({ className, ...props }, ref) => {
   return (
     <SwitchPrimitives.Root
       className={cn(
@@ -25,6 +23,7 @@ function SwitchWeb({
         className,
       )}
       {...props}
+      ref={ref}
     >
       <SwitchPrimitives.Thumb
         className={cn(
@@ -34,7 +33,8 @@ function SwitchWeb({
       />
     </SwitchPrimitives.Root>
   );
-}
+});
+SwitchWeb.displayName = "SwitchWeb";
 
 const RGB_COLORS = {
   light: {
@@ -47,12 +47,10 @@ const RGB_COLORS = {
   },
 } as const;
 
-function SwitchNative({
-  className,
-  ...props
-}: SwitchPrimitives.RootProps & {
-  ref?: React.RefObject<SwitchPrimitives.RootRef>;
-}) {
+const SwitchNative = React.forwardRef<
+  SwitchPrimitives.RootRef,
+  SwitchPrimitives.RootProps
+>(({ className, ...props }, ref) => {
   const { colorScheme } = useColorScheme();
   const translateX = useDerivedValue(() => (props.checked ? 18 : 0));
   const animatedRootStyle = useAnimatedStyle(() => {
@@ -83,6 +81,7 @@ function SwitchNative({
           props.checked ? "bg-primary" : "bg-input",
           className,
         )}
+        ref={ref}
         {...props}
       >
         <Animated.View style={animatedThumbStyle}>
@@ -95,7 +94,8 @@ function SwitchNative({
       </SwitchPrimitives.Root>
     </Animated.View>
   );
-}
+});
+SwitchNative.displayName = "SwitchNative";
 
 const Switch = Platform.select({
   web: SwitchWeb,
