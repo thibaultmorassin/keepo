@@ -88,31 +88,14 @@ export default function Login() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <View
-                    className="relative"
-                  >
-                    <FormInput
-                      label="Mot de passe"
-                      placeholder="Mot de passe"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      secureTextEntry={!passwordIsVisible}
-                      {...field}
-                    />
-                    <Button
-                      className="absolute right-2 bottom-1"
-                      onPress={() => setPasswordIsVisible(!passwordIsVisible)}
-                      variant="ghost"
-                      size="icon"
-                    >
-                      {
-                        passwordIsVisible ? 
-                        <Feather name="eye-off" size={18} color="black" />
-                        :
-                        <Feather name="eye" size={18} color="black" />
-                      }
-                    </Button>
-                  </View>
+                  <FormInput
+                    label="Mot de passe"
+                    placeholder="Mot de passe"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    secureTextEntry={true}
+                    {...field}
+                  />
                 )}
               />
             </View>
