@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
     <SafeAreaView className="flex flex-1 bg-background">
       <View className="p-4 flex-1">
         <View className="flex flex-1 items-center justify-center gap-y-4 web:m-4">
-          <H1 className="text-center">
+          <H1 className="text-center font-display">
             {session ? `Hello, ${session.firstName} !` : "Welcome to Keepo"}
           </H1>
           <Muted className="text-center">

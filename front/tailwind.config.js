@@ -6,6 +6,9 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      fontFamily: {
+        display: ["LilitaOne_400Regular"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

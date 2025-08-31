@@ -24,6 +24,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": ["node_modules/@expo-google-fonts/lilita-one/400Regular"]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

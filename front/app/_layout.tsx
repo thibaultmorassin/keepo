@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/lib/cognito/auth.provider";
+import { LilitaOne_400Regular, useFonts } from "@expo-google-fonts/lilita-one";
 import { Stack } from "expo-router";
 import {
   configureReanimatedLogger,
@@ -24,6 +25,8 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { session } = useAuth();
+
+  useFonts({ LilitaOne_400Regular });
 
   return (
     <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
