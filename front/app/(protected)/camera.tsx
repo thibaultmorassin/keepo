@@ -156,26 +156,26 @@ export default function CameraScreen() {
           <CameraView ref={cameraRef} style={styles.camera} facing={facing}>
             <View className="flex-1 justify-end items-center pb-8">
               <View className="flex-row gap-4 items-center">
-                <Pressable
+                <Button
                   onPress={openImageLibrary}
                   className="bg-white/20 shadow rounded-full p-4"
                 >
                   <Text className="text-white font-medium">Galerie</Text>
-                </Pressable>
+                </Button>
 
-                <Pressable
+                <Button
                   onPress={takePicture}
-                  className="bg-white border shadow-lg rounded-full p-6"
+                  className="bg-white border native:h-20 w-20 shadow-lg border-foreground/20 rounded-full p-6"
                 >
-                  <View className="w-12 h-12 bg-white rounded-full border-4 border-gray-300" />
-                </Pressable>
+                  <View className="w-12 h-12 bg-white rounded-full border-4 border-input" />
+                </Button>
 
-                <Pressable
+                <Button
                   onPress={toggleCameraFacing}
                   className="bg-white/20 shadow rounded-full p-4"
                 >
                   <Text className="text-white font-medium">Retourner</Text>
-                </Pressable>
+                </Button>
               </View>
             </View>
           </CameraView>
