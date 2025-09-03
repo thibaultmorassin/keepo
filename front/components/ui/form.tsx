@@ -176,8 +176,10 @@ type FormItemProps<T extends React.ElementType<any>, U> = Override<
 
 const FormInput = React.forwardRef<
   React.ComponentRef<typeof Input>,
-  FormItemProps<typeof Input, string>
->(({ label, description, onChange, ...props }, ref) => {
+  FormItemProps<typeof Input, string> & {
+    children?: React.ReactNode;
+  }
+>(({ label, description, onChange, children, ...props }, ref) => {
   const inputRef = React.useRef<React.ComponentRef<typeof Input>>(null);
   const {
     error,
@@ -211,19 +213,21 @@ const FormInput = React.forwardRef<
           {label}
         </FormLabel>
       )}
-
-      <Input
-        ref={inputRef}
-        aria-labelledby={formItemNativeID}
-        aria-describedby={
-          !error
-            ? `${formDescriptionNativeID}`
-            : `${formDescriptionNativeID} ${formMessageNativeID}`
-        }
-        aria-invalid={!!error}
-        onChangeText={onChange}
-        {...props}
-      />
+      <View className="relative">
+        <Input
+          ref={inputRef}
+          aria-labelledby={formItemNativeID}
+          aria-describedby={
+            !error
+              ? `${formDescriptionNativeID}`
+              : `${formDescriptionNativeID} ${formMessageNativeID}`
+          }
+          aria-invalid={!!error}
+          onChangeText={onChange}
+          {...props}
+        />
+        {children}
+      </View>
       {!!description && <FormDescription>{description}</FormDescription>}
       <FormMessage />
     </FormItem>
