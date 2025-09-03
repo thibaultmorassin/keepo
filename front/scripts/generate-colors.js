@@ -26,7 +26,7 @@ const cssContent = fs.readFileSync(globalCssPath, "utf-8");
 
 // Extract HSL variables from both :root and .dark:root
 const rootRegex = /:root\s*{([^}]*)}/;
-const darkRootRegex = /\.dark\s*{([^}]*)}/;
+const darkRootRegex = /\.dark:root\s*{([^}]*)}/;
 
 // Helper function to convert kebab-case to camelCase
 const toCamelCase = (str) =>
