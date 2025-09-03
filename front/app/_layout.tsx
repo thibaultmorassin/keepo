@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/lib/cognito/auth.provider";
+import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import {
   configureReanimatedLogger,
@@ -17,6 +18,7 @@ export default function RootLayout() {
     <AuthProvider>
       <SafeAreaProvider>
         <RootNavigator />
+        <PortalHost />
       </SafeAreaProvider>
     </AuthProvider>
   );
