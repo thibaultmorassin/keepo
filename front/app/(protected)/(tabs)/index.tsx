@@ -1,5 +1,5 @@
-import { Link } from "expo-router";
 import { View } from "react-native";
+import { Link } from "expo-router";
 
 import { Button } from "@/components/ui/button";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
@@ -16,7 +16,7 @@ export default function Home() {
           après la fermeture de l&apos;application.
         </Muted>
       </View>
-      <Link href="/(protected)/modal" asChild>
+      <Link href="/(protected)/camera" asChild>
         <Button className="w-full" variant="default" size="default">
           <Text>Ajouter une nouvelle garantie</Text>
         </Button>

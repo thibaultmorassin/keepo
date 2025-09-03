@@ -9,7 +9,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
-import { Link, useRouter } from "expo-router";
+import { Link, useRouter, useLocalSearchParams } from "expo-router";
 import { useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -20,6 +20,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useCallback, useEffect, useState } from "react";
 import * as z from "zod";
 
 const formSchema = z.object({
@@ -38,6 +39,8 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function ModalScreen() {
   const router = useRouter();
+  const { imageUri } = useLocalSearchParams<{ imageUri?: string }>();
+  const [hasSelectedImage, setHasSelectedImage] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -50,55 +53,59 @@ export default function ModalScreen() {
     },
   });
 
-  const pickImage = async (source: "camera" | "library") => {
-    try {
-      let result;
+  const pickImage = useCallback(
+    async (source: "camera" | "library") => {
+      try {
+        let result;
 
-      if (source === "camera") {
-        const permissionResult =
-          await ImagePicker.requestCameraPermissionsAsync();
-        if (permissionResult.granted === false) {
-          Alert.alert(
-            "Permission refusée",
-            "L'accès à la caméra est nécessaire pour prendre une photo.",
-          );
-          return;
+        if (source === "camera") {
+          const permissionResult =
+            await ImagePicker.requestCameraPermissionsAsync();
+          if (permissionResult.granted === false) {
+            Alert.alert(
+              "Permission refusée",
+              "L'accès à la caméra est nécessaire pour prendre une photo.",
+            );
+            return;
+          }
+          result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
+        } else {
+          const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (permissionResult.granted === false) {
+            Alert.alert(
+              "Permission refusée",
+              "L'accès à la galerie est nécessaire pour sélectionner une image.",
+            );
+            return;
+          }
+          result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
         }
-        result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.8,
-        });
-      } else {
-        const permissionResult =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
-          Alert.alert(
-            "Permission refusée",
-            "L'accès à la galerie est nécessaire pour sélectionner une image.",
-          );
-          return;
-        }
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.8,
-        });
-      }
 
-      if (!result.canceled && result.assets && result.assets[0]) {
-        form.setValue("file", result.assets[0]);
+        if (!result.canceled && result.assets && result.assets[0]) {
+          form.setValue("file", result.assets[0]);
+          setHasSelectedImage(true);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la sélection d'image:", error);
+        Alert.alert(
+          "Erreur",
+          "Une erreur s'est produite lors de la sélection de l'image.",
+        );
       }
-    } catch (error) {
-      console.error("Erreur lors de la sélection d'image:", error);
-      Alert.alert(
-        "Erreur",
-        "Une erreur s'est produite lors de la sélection de l'image.",
-      );
-    }
-  };
+    },
+    [form],
+  );
 
   const showImagePickerOptions = () => {
     Alert.alert(
@@ -121,13 +128,88 @@ export default function ModalScreen() {
     );
   };
 
+  // Handle image from camera screen
+  useEffect(() => {
+    if (imageUri) {
+      // Create a mock asset object from the URI
+      const mockAsset = {
+        uri: imageUri,
+        width: 0,
+        height: 0,
+        type: "image",
+        fileName: "receipt.jpg",
+        fileSize: 0,
+      };
+      form.setValue("file", mockAsset);
+      setHasSelectedImage(true);
+    }
+  }, [imageUri, form]);
+
   const onSubmit = async (data: FormData) => {
     console.log("Warranty data:", data);
 
-    router.back();
+    router.push("/(protected)/(tabs)");
   };
 
   const selectedImage = form.watch("file");
+
+  if (!hasSelectedImage) {
+    return (
+      <SafeAreaProvider>
+        <SafeAreaView className="flex-1 bg-background pt-8 px-4">
+          <ScrollView className="flex-1 gap-4">
+            <View className="flex-1 items-center justify-center">
+              <Text>Sélectionnez une image de votre reçu pour commencer</Text>
+            </View>
+            <View className="flex-1 items-center justify-center">
+              <View className="h-64 w-full">
+                <Pressable
+                  onPress={() => router.push("/camera" as any)}
+                  className="h-full rounded-xl items-center justify-center border-dashed bg-muted border-2 border-muted-foreground/25"
+                >
+                  <Text className="text-muted-foreground pt-4">
+                    Prendre une photo
+                  </Text>
+                  <Text className="text-xs text-muted-foreground mt-0.5">
+                    Appuyez pour ouvrir la caméra
+                  </Text>
+                </Pressable>
+              </View>
+              <View className="mt-4 w-full">
+                <Button
+                  variant="outline"
+                  onPress={showImagePickerOptions}
+                  className="w-full"
+                >
+                  <Text>Ou choisir depuis la galerie</Text>
+                </Button>
+              </View>
+            </View>
+          </ScrollView>
+          <View className="flex-row gap-4 mt-4">
+            <Link href="../" asChild>
+              <Button variant="secondary">
+                <Text>Annuler</Text>
+              </Button>
+            </Link>
+
+            <Button
+              variant="default"
+              onPress={form.handleSubmit(onSubmit)}
+              disabled={form.formState.isSubmitting}
+              className="flex-1"
+            >
+              {form.formState.isSubmitting ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <Text>Ajouter la garantie</Text>
+              )}
+            </Button>
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -136,6 +218,7 @@ export default function ModalScreen() {
           <H1 className="self-start font-display">Ajouter une garantie</H1>
           <Muted>Remplissez les informations de votre garantie</Muted>
         </View>
+
         <ScrollView className="flex-1 gap-4">
           <Form {...form}>
             <View className="gap-4">
@@ -145,48 +228,25 @@ export default function ModalScreen() {
                 render={({ field }) => (
                   <View className="gap-2">
                     <Text className="text-sm font-medium text-foreground">
-                      Image du reçu
+                      Facture
                     </Text>
-                    <View className="h-64">
+                    <View className="h-64 p-2 border rounded-lg border-input bg-muted border-dotted">
                       {selectedImage ? (
                         <View className="h-full gap-2">
                           <Image
                             source={{ uri: selectedImage.uri }}
-                            className="w-full flex-1 rounded-lg"
-                            resizeMode="cover"
+                            className="flex-1 mx-auto border bg-background border-input aspect-[9/16] rounded-lg"
+                            resizeMode="contain"
                           />
                           <View className="flex-row gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onPress={showImagePickerOptions}
-                              className="flex-1"
-                            >
-                              <Text>Changer</Text>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onPress={() => form.setValue("file", undefined)}
-                              className="flex-1"
-                            >
-                              <Text>Supprimer</Text>
-                            </Button>
+                            <Link href="../" asChild>
+                              <Button variant="outline">
+                                <Text>Changer</Text>
+                              </Button>
+                            </Link>
                           </View>
                         </View>
-                      ) : (
-                        <Pressable
-                          onPress={showImagePickerOptions}
-                          className="h-full rounded-xl items-center justify-center border-dashed bg-muted border-2 border-muted-foreground/25"
-                        >
-                          <Text className="text-muted-foreground pt-4">
-                            Appuyez pour ajouter une image
-                          </Text>
-                          <Text className="text-xs text-muted-foreground mt-0.5">
-                            Caméra ou galerie
-                          </Text>
-                        </Pressable>
-                      )}
+                      ) : null}
                     </View>
                   </View>
                 )}
@@ -306,13 +366,12 @@ export default function ModalScreen() {
         </ScrollView>
         <View className="flex-row gap-4 mt-4">
           <Link href="../" asChild>
-            <Button size="default" variant="secondary">
+            <Button variant="secondary">
               <Text>Annuler</Text>
             </Button>
           </Link>
 
           <Button
-            size="default"
             variant="default"
             onPress={form.handleSubmit(onSubmit)}
             disabled={form.formState.isSubmitting}
@@ -321,7 +380,7 @@ export default function ModalScreen() {
             {form.formState.isSubmitting ? (
               <ActivityIndicator size="small" />
             ) : (
-              <Text>Se connecter</Text>
+              <Text>Ajouter la garantie</Text>
             )}
           </Button>
         </View>
